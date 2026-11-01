@@ -1,1 +1,18 @@
-.github/workflows/build.yml
+name: build
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -r requirements.txt pyinstaller
+      - run: pyinstaller --noconfirm --clean --windowed --onefile --name TinySAStudio --hidden-import serial.tools.list_ports tinysa_studio.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TinySAStudio-${{ matrix.os }}
+          path: dist/*
